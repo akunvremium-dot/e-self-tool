@@ -9,6 +9,34 @@ export default function AdminPage() {
   const [data, setData] = useState<AssessmentRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Restore session on page refresh
+  useEffect(() => {
+    const savedPwd = sessionStorage.getItem("admin_pwd");
+    if (savedPwd) {
+      setPassword(savedPwd);
+      setIsAuthenticated(true);
+      // Auto-load data on restore
+      (async () => {
+        setIsLoading(true);
+        try {
+          const response = await fetch("/api/admin/assessments", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password: savedPwd }),
+          });
+          if (response.ok) {
+            const results = await response.json();
+            setData(results);
+          }
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setIsLoading(false);
+        }
+      })();
+    }
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) return;
@@ -45,6 +73,7 @@ export default function AdminPage() {
 
       const results = await response.json();
       setIsAuthenticated(true);
+      sessionStorage.setItem("admin_pwd", password);
       setData(results);
     } catch (err) {
       console.error(err);
