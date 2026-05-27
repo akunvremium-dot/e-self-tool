@@ -180,6 +180,7 @@ export default function AssessmentPage() {
               <QuestionCard
                 questionNumber={question.id}
                 text={question.text}
+                hint={question.hint}
                 value={answers[question.key] ?? null}
                 onChange={(value) => handleAnswer(question.key, value)}
               />

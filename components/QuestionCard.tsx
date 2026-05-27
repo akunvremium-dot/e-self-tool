@@ -6,6 +6,7 @@ import { SCALE_LABELS } from "@/lib/questions";
 type QuestionCardProps = {
   questionNumber: number;   // 1–20
   text: string;
+  hint?: string;
   value: number | null;
   onChange: (value: number) => void;
 };
@@ -13,6 +14,7 @@ type QuestionCardProps = {
 export default function QuestionCard({
   questionNumber,
   text,
+  hint,
   value,
   onChange,
 }: QuestionCardProps) {
@@ -26,6 +28,11 @@ export default function QuestionCard({
         <p className="text-base sm:text-lg font-medium text-white/90 leading-relaxed">
           {text}
         </p>
+        {hint && (
+          <p className="text-sm text-white/35 leading-relaxed pt-1 italic">
+            {hint}
+          </p>
+        )}
       </div>
 
       {/* Scale options */}
