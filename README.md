@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-Self Tool
 
-## Getting Started
+Alat refleksi diri berbasis self-report yang membantu pengguna memahami kondisi internal dan pola adaptasi dirinya secara lebih jernih dan terstruktur.
 
-First, run the development server:
+## Tentang Aplikasi
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+E-Self Tool adalah sistem refleksi diri yang mengubah 20 jawaban sederhana menjadi peta kondisi internal dan arah perkembangan psikologis pengguna saat ini.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> Hasil yang ditampilkan bersifat informatif dan reflektif, **bukan diagnosis medis, psikologis, atau psikiatris**, serta tidak menggantikan konsultasi dengan tenaga profesional.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Fitur
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 20 pertanyaan refleksi diri
+- Hasil instan berupa skor 0–100
+- Peta 10 zona kondisi diri
+- Ekspor laporan ke PDF & PNG
+- Dashboard admin untuk melihat riwayat asesmen
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js](https://nextjs.org) — Framework
+- [Supabase](https://supabase.com) — Database
+- [Vercel](https://vercel.com) — Hosting
