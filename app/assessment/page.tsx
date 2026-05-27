@@ -3,7 +3,8 @@
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getSections, Answers } from "@/lib/questions";
-import { useLocale, uiStrings } from "@/lib/i18n";
+import { useLocale } from "@/lib/client-i18n";
+import { uiStrings } from "@/lib/i18n";
 import { computeScore } from "@/lib/scoring";
 import { saveAssessment } from "@/lib/supabase";
 import ProgressBar from "@/components/ProgressBar";

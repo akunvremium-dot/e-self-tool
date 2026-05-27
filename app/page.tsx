@@ -27,8 +27,9 @@ const ZONE_PREVIEWS = [
 
 export default async function HomePage() {
   const cookieStore = await cookies();
-  const locale = (cookieStore.get("eself_locale")?.value || "id") as Locale;
-  const t = uiStrings[locale];
+  const cookieValue = cookieStore.get("eself_locale")?.value;
+  const locale = (cookieValue === "id" || cookieValue === "en" ? cookieValue : "id") as Locale;
+  const t = uiStrings[locale] || uiStrings["id"];
 
   return (
     <main className="gradient-bg noise-bg min-h-screen flex flex-col relative overflow-hidden">

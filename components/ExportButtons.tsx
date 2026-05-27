@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import * as htmlToImage from "html-to-image";
 import jsPDF from "jspdf";
-import { useLocale } from "@/lib/i18n";
+import { useLocale } from "@/lib/client-i18n";
 
 export default function ExportButtons() {
   const [isExporting, setIsExporting] = useState(false);

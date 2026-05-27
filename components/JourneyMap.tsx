@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from "react";
 import { ZoneData, ZONE_TABLE } from "@/lib/zones";
-import { useLocale, uiStrings } from "@/lib/i18n";
+import { useLocale } from "@/lib/client-i18n";
+import { uiStrings } from "@/lib/i18n";
 
 type JourneyMapProps = {
   currentZone: ZoneData;
