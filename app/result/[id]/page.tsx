@@ -5,14 +5,15 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getAssessment, AssessmentRow } from "@/lib/supabase";
 import { computeScore, ScoringResult } from "@/lib/scoring";
-import { getZoneData } from "@/lib/zones";
 import { Answers } from "@/lib/questions";
+import { useLocale, uiStrings, Locale } from "@/lib/i18n";
 import ScoreGauge from "@/components/ScoreGauge";
 import ZoneBadge from "@/components/ZoneBadge";
 import DimensionChip from "@/components/DimensionChip";
 import JourneyMap from "@/components/JourneyMap";
 import RadarChart from "@/components/RadarChart";
 import ExportButtons from "@/components/ExportButtons";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 type ExtendedScoringResult = ScoringResult & { name?: string; city?: string; whatsapp?: string; date?: string; };
 
@@ -21,7 +22,7 @@ type ResultState =
   | { status: "ready"; data: ExtendedScoringResult }
   | { status: "error"; message: string };
 
-function buildScoringResultFromRow(row: AssessmentRow): ScoringResult {
+function buildScoringResultFromRow(row: AssessmentRow, locale: Locale): ScoringResult {
   const answers: Answers = {
     q1: row.q1, q2: row.q2, q3: row.q3, q4: row.q4,
     q5: row.q5, q6: row.q6, q7: row.q7, q8: row.q8,
@@ -29,7 +30,7 @@ function buildScoringResultFromRow(row: AssessmentRow): ScoringResult {
     q13: row.q13, q14: row.q14, q15: row.q15, q16: row.q16,
     q17: row.q17, q18: row.q18, q19: row.q19, q20: row.q20,
   };
-  const result = computeScore(answers) as ExtendedScoringResult;
+  const result = computeScore(answers, locale) as ExtendedScoringResult;
   result.name = row.name;
   result.city = row.city;
   result.whatsapp = row.whatsapp;
@@ -42,6 +43,8 @@ export default function ResultPage() {
   const id = params?.id as string;
 
   const [state, setState] = useState<ResultState>({ status: "loading" });
+  const locale = useLocale();
+  const t = uiStrings[locale];
 
   useEffect(() => {
     const load = async () => {
@@ -58,7 +61,7 @@ export default function ResultPage() {
               q13: parsed.q13, q14: parsed.q14, q15: parsed.q15, q16: parsed.q16,
               q17: parsed.q17, q18: parsed.q18, q19: parsed.q19, q20: parsed.q20,
             };
-            const result = computeScore(answers) as ExtendedScoringResult;
+            const result = computeScore(answers, locale) as ExtendedScoringResult;
             result.name = parsed.name;
             result.city = parsed.city;
             result.whatsapp = parsed.whatsapp;
@@ -76,7 +79,7 @@ export default function ResultPage() {
           const response = await fetch(`/api/assessment/${id}`);
           if (response.ok) {
             const row = await response.json();
-            setState({ status: "ready", data: buildScoringResultFromRow(row) });
+            setState({ status: "ready", data: buildScoringResultFromRow(row, locale) });
             return;
           }
         } catch (err) {
@@ -88,26 +91,26 @@ export default function ResultPage() {
       if (id) {
         const row = await getAssessment(id);
         if (row) {
-          setState({ status: "ready", data: buildScoringResultFromRow(row) });
+          setState({ status: "ready", data: buildScoringResultFromRow(row, locale) });
           return;
         }
       }
 
       setState({
         status: "error",
-        message: "Hasil tidak ditemukan. Coba mulai penilaian baru.",
+        message: locale === "id" ? "Hasil tidak ditemukan. Coba mulai penilaian baru." : "Result not found. Try starting a new assessment.",
       });
     };
 
     load();
-  }, [id]);
+  }, [id, locale]);
 
   if (state.status === "loading") {
     return (
       <main className="gradient-bg noise-bg min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full border-2 border-cyan-400/30 border-t-cyan-400 animate-spin" />
-          <p className="text-sm text-white/40">Memproses hasil...</p>
+          <p className="text-sm text-white/40">{t.loading}</p>
         </div>
       </main>
     );
@@ -122,7 +125,7 @@ export default function ResultPage() {
             href="/assessment"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-400 text-black font-bold text-sm"
           >
-            Mulai Penilaian Baru
+            {t.errorStartNew}
           </Link>
         </div>
       </main>
@@ -134,11 +137,11 @@ export default function ResultPage() {
 
   // Domain scores for the breakdown bar
   const domains = [
-    { label: "Stability", score: result.stabilityScore, color: "#22d3ee" },
-    { label: "Reactivity ↓", score: result.reactivityFinal, color: "#818cf8" },
-    { label: "Clarity", score: result.clarityScore, color: "#34d399" },
-    { label: "Adaptivity", score: result.adaptivityScore, color: "#fcd34d" },
-    { label: "Adjustment", score: result.adjustmentAvg * 25, color: "#f472b6" },
+    { label: locale === "id" ? "Stabilitas" : "Stability", score: result.stabilityScore, color: "#22d3ee" },
+    { label: locale === "id" ? "Reaktivitas ↓" : "Reactivity ↓", score: result.reactivityFinal, color: "#818cf8" },
+    { label: locale === "id" ? "Kejernihan" : "Clarity", score: result.clarityScore, color: "#34d399" },
+    { label: locale === "id" ? "Adaptivitas" : "Adaptivity", score: result.adaptivityScore, color: "#fcd34d" },
+    { label: locale === "id" ? "Penyesuaian" : "Adjustment", score: result.adjustmentAvg * 25, color: "#f472b6" },
   ];
 
   return (
@@ -161,7 +164,10 @@ export default function ResultPage() {
           </div>
           <span className="font-bold text-white/70 tracking-tight text-sm">E-Self Tool</span>
         </Link>
-        <span className="text-xs text-white/20">Hasil Penilaian</span>
+        <div className="flex items-center gap-4">
+          <span className="text-xs text-white/20">{t.resultDesc}</span>
+          <LanguageSwitcher />
+        </div>
       </header>
 
       <div className="relative z-10 flex-1 max-w-2xl mx-auto w-full px-6 pb-12 space-y-6">
@@ -172,7 +178,7 @@ export default function ResultPage() {
           {result.name && result.name !== "Anonim" && (
             <div className="animate-fade-in-up bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
               <div>
-                <p className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest mb-1">Identitas Peserta</p>
+                <p className="text-[10px] text-cyan-400 font-bold uppercase tracking-widest mb-1">{t.identity}</p>
                 <p className="text-base text-white font-bold">{result.name}</p>
               </div>
               <div className="flex gap-5 text-xs text-white/50 font-medium mt-2 sm:mt-0">
@@ -220,7 +226,7 @@ export default function ResultPage() {
           style={{ borderLeftColor: `${zone.hexColor}60` }}
         >
           <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-3">
-            Interpretasi
+            {locale === "id" ? "Interpretasi" : "Interpretation"}
           </p>
           <p className="text-sm text-white/70 leading-relaxed">
             {zone.interpretation}
@@ -230,48 +236,48 @@ export default function ResultPage() {
         {/* Characteristics Breakdown */}
         <div className="animate-fade-in-up animate-delay-300 glass-card p-6">
           <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-4">
-            Karakteristik Psikologis
+            {locale === "id" ? "Karakteristik Psikologis" : "Psychological Characteristics"}
           </p>
           <div className="space-y-4">
             <div>
-              <p className="text-xs text-white/40 mb-1">Apa yang dirasakan (Feelings)</p>
+              <p className="text-xs text-white/40 mb-1">{locale === "id" ? "Apa yang dirasakan" : "What you feel"} (Feelings)</p>
               <p className="text-sm text-white/80 leading-relaxed">{zone.characteristics.feelings}</p>
             </div>
             <div>
-              <p className="text-xs text-white/40 mb-1">Apa yang dipikirkan (Thoughts)</p>
+              <p className="text-xs text-white/40 mb-1">{locale === "id" ? "Apa yang dipikirkan" : "What you think"} (Thoughts)</p>
               <p className="text-sm text-white/80 leading-relaxed">{zone.characteristics.thoughts}</p>
             </div>
             <div>
-              <p className="text-xs text-white/40 mb-1">Apa yang dikhawatirkan (Worries)</p>
+              <p className="text-xs text-white/40 mb-1">{locale === "id" ? "Apa yang dikhawatirkan" : "What you worry about"} (Worries)</p>
               <p className="text-sm text-white/80 leading-relaxed">{zone.characteristics.worries}</p>
             </div>
             <div>
-              <p className="text-xs text-white/40 mb-1">Bagaimana melihat realitas (Reality)</p>
+              <p className="text-xs text-white/40 mb-1">{locale === "id" ? "Bagaimana melihat realitas" : "How you perceive reality"} (Reality)</p>
               <p className="text-sm text-white/80 leading-relaxed">{zone.characteristics.reality}</p>
             </div>
             <div>
-              <p className="text-xs text-white/40 mb-1">Kondisi ketegangan (Physical)</p>
+              <p className="text-xs text-white/40 mb-1">{locale === "id" ? "Kondisi fisik/ketegangan" : "Physical condition"} (Physical)</p>
               <p className="text-sm text-white/80 leading-relaxed">{zone.characteristics.physical}</p>
             </div>
           </div>
           
           <div className="mt-6 pt-5 border-t border-white/10 space-y-4">
             <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-2">
-              Deep Insights
+              {t.deepInsights}
             </p>
             <div className="bg-white/[0.03] p-4 rounded-xl border border-white/5 space-y-4">
               <div>
-                <p className="text-xs text-cyan-400/80 mb-1 font-medium">Kenapa aku merasa seperti ini?</p>
+                <p className="text-xs text-cyan-400/80 mb-1 font-medium">{t.whyFeel}</p>
                 <p className="text-sm text-white/80 leading-relaxed">{zone.deepInsights.whyFeelThisWay}</p>
               </div>
               <div className="h-px w-full bg-white/5" />
               <div>
-                <p className="text-xs text-indigo-400/80 mb-1 font-medium">Apakah aku baik baik saja?</p>
+                <p className="text-xs text-indigo-400/80 mb-1 font-medium">{t.amIOkay}</p>
                 <p className="text-sm text-white/80 leading-relaxed">{zone.deepInsights.amIOkay}</p>
               </div>
               <div className="h-px w-full bg-white/5" />
               <div>
-                <p className="text-xs text-amber-400/80 mb-1 font-medium">Pola apa yang ada dalam diriku namun aku tidak sadar?</p>
+                <p className="text-xs text-amber-400/80 mb-1 font-medium">{t.unconsciousPattern}</p>
                 <p className="text-sm text-white/80 leading-relaxed">{zone.deepInsights.unconsciousPattern}</p>
               </div>
             </div>
@@ -312,11 +318,11 @@ export default function ResultPage() {
           {/* Adjustment note */}
           <div className="mt-4 pt-4 border-t border-white/5">
             <div className="flex justify-between items-center text-xs">
-              <span className="text-white/30">Base Score</span>
+              <span className="text-white/30">{t.baseScore}</span>
               <span className="font-mono text-white/50">{Math.round(result.baseScore)}</span>
             </div>
             <div className="flex justify-between items-center text-xs mt-1">
-              <span className="text-white/30">Adjustment Factor</span>
+              <span className="text-white/30">{t.adjustmentFactor}</span>
               <span
                 className="font-mono"
                 style={{
@@ -338,7 +344,7 @@ export default function ResultPage() {
         {/* Actionable Advice */}
         <div className="animate-fade-in-up animate-delay-400 glass-card p-6">
           <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-4">
-            Daily Actions
+            {t.dailyActions}
           </p>
           <div className="space-y-4">
             <div className="p-4 rounded-xl border border-emerald-400/20 bg-emerald-400/5">
@@ -346,7 +352,7 @@ export default function ResultPage() {
                 <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                <p className="text-xs font-semibold text-emerald-400/90 uppercase tracking-wider">Hal yang perlu dilatih</p>
+                <p className="text-xs font-semibold text-emerald-400/90 uppercase tracking-wider">{t.practice}</p>
               </div>
               <ul className="space-y-2 text-sm text-white/80 leading-relaxed pl-1">
                 {zone.actionable.practice.map((item, i) => (
@@ -363,7 +369,7 @@ export default function ResultPage() {
                 <svg className="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-                <p className="text-xs font-semibold text-rose-400/90 uppercase tracking-wider">Hal yang perlu dihindari</p>
+                <p className="text-xs font-semibold text-rose-400/90 uppercase tracking-wider">{t.avoid}</p>
               </div>
               <ul className="space-y-2 text-sm text-white/80 leading-relaxed pl-1">
                 {zone.actionable.avoid.map((item, i) => (
@@ -391,7 +397,7 @@ export default function ResultPage() {
               transition-all duration-300 hover:scale-[1.02]
             "
           >
-            Ambil Penilaian Lagi
+            {t.takeAgain}
           </Link>
           <Link
             href="/"
@@ -403,7 +409,7 @@ export default function ResultPage() {
               transition-all duration-200
             "
           >
-            Kembali ke Beranda
+            {t.backToHome}
           </Link>
         </div>
         <ExportButtons />
@@ -411,10 +417,10 @@ export default function ResultPage() {
         {/* Disclaimer */}
         <div className="animate-fade-in-up animate-delay-600 text-center pt-4 border-t border-white/5 mt-8">
           <p className="text-[10px] text-white/25 leading-relaxed max-w-md mx-auto">
-            E-Self Tool adalah alat refleksi diri berbasis self-report yang dirancang untuk membantu pengguna memahami kondisi internal dan pola adaptasi dirinya secara lebih jernih dan terstruktur. Hasil yang ditampilkan bersifat informatif dan reflektif, bukan diagnosis medis, psikologis, atau psikiatris, serta tidak menggantikan konsultasi dengan tenaga profesional.
+            {t.disclaimer1}
           </p>
           <p className="text-[9px] text-white/15 leading-relaxed max-w-md mx-auto mt-2">
-            This tool is for self-reflection and does not provide medical or psychological diagnosis.
+            {t.disclaimer2}
           </p>
         </div>
       </div>

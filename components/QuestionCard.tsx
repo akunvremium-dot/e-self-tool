@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { SCALE_LABELS } from "@/lib/questions";
+import { getScaleLabels } from "@/lib/questions";
+import { Locale } from "@/lib/i18n";
 
 type QuestionCardProps = {
   questionNumber: number;   // 1–20
@@ -9,6 +10,7 @@ type QuestionCardProps = {
   hint?: string;
   value: number | null;
   onChange: (value: number) => void;
+  locale: Locale;
 };
 
 export default function QuestionCard({
@@ -17,7 +19,10 @@ export default function QuestionCard({
   hint,
   value,
   onChange,
+  locale,
 }: QuestionCardProps) {
+  const SCALE_LABELS = getScaleLabels(locale);
+
   return (
     <div className="w-full space-y-5">
       {/* Question text */}
@@ -45,7 +50,7 @@ export default function QuestionCard({
             <button
               key={v}
               onClick={() => onChange(v)}
-              aria-label={`Pilih: ${label}`}
+              aria-label={`${locale === "id" ? "Pilih" : "Select"}: ${label}`}
               aria-pressed={isSelected}
               className={`
                 group relative flex flex-col items-center gap-2 py-3 px-1 rounded-xl border
@@ -87,8 +92,8 @@ export default function QuestionCard({
 
       {/* Scale endpoints label */}
       <div className="flex justify-between text-[10px] text-white/20 px-1">
-        <span>Sangat Rendah</span>
-        <span>Sangat Tinggi</span>
+        <span>{locale === "id" ? "Sangat Rendah" : "Very Low"}</span>
+        <span>{locale === "id" ? "Sangat Tinggi" : "Very High"}</span>
       </div>
     </div>
   );

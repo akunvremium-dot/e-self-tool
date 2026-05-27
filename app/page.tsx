@@ -1,7 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import ProfileForm from "@/components/ProfileForm";
 import ParticleBackground from "@/components/ParticleBackground";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { uiStrings, Locale } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "E-Self Tool — Kenali Kondisi Dirimu",
@@ -22,7 +25,11 @@ const ZONE_PREVIEWS = [
   { zone: "Peak", color: "#f8fafc", score: "91–100" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get("eself_locale")?.value || "id") as Locale;
+  const t = uiStrings[locale];
+
   return (
     <main className="gradient-bg noise-bg min-h-screen flex flex-col relative overflow-hidden">
       <ParticleBackground />
@@ -34,7 +41,10 @@ export default function HomePage() {
           </div>
           <span className="font-bold text-white/90 tracking-tight">E-Self Tool</span>
         </div>
-        <span className="text-xs text-white/30 hidden sm:block">Self-Regulation Assessment</span>
+        <div className="flex items-center gap-4">
+          <span className="text-xs text-white/30 hidden sm:block">Self-Regulation Assessment</span>
+          <LanguageSwitcher />
+        </div>
       </header>
 
       {/* Hero section */}
@@ -42,33 +52,32 @@ export default function HomePage() {
         {/* Badge */}
         <div className="mb-8 inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-400/20 bg-cyan-400/5 text-xs text-cyan-400/80 font-medium tracking-wide">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          20 Pertanyaan · Hasil Instan · Tanpa Login
+          {locale === "id" ? "20 Pertanyaan · Hasil Instan · Tanpa Login" : "20 Questions · Instant Result · No Login"}
         </div>
 
         {/* Main heading */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5">
-          <span className="text-white">Kenali kondisi</span>
+          <span className="text-white whitespace-pre-line">{t.heroTitle.split('\n')[0]}</span>
           <br />
           <span className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-sky-400 bg-clip-text text-transparent">
-            dirimu.
+            {t.heroTitle.split('\n')[1] || "dirimu."}
           </span>
         </h1>
 
         <p className="text-lg text-white/50 font-medium mb-3">
-          Pahami arah gerakmu.
+          {locale === "id" ? "Pahami arah gerakmu." : "Understand your direction."}
         </p>
 
         {/* Description */}
         <p className="text-sm sm:text-base text-white/40 leading-relaxed max-w-xl mb-12">
-          E-Self Tool adalah sistem refleksi diri yang mengubah 20 jawaban sederhana menjadi
-          peta kondisi internal dan arah perkembangan psikologismu saat ini.
+          {t.heroSubtitle}
         </p>
 
         {/* CTA */}
-        <ProfileForm />
+        <ProfileForm locale={locale} />
 
         <p className="mt-4 text-xs text-white/20">
-          ≈ 5 menit · Tidak ada jawaban benar atau salah
+          {locale === "id" ? "≈ 5 menit · Tidak ada jawaban benar atau salah" : "≈ 5 mins · No right or wrong answers"}
         </p>
 
         {/* Zone color strip */}
@@ -94,18 +103,18 @@ export default function HomePage() {
             ))}
           </div>
           <div className="flex justify-between mt-2 text-[9px] text-white/20">
-            <span>Rendah</span>
-            <span>Tinggi</span>
+            <span>{locale === "id" ? "Rendah" : "Low"}</span>
+            <span>{locale === "id" ? "Tinggi" : "High"}</span>
           </div>
         </div>
 
         {/* What you get section */}
         <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-2xl">
           {[
-            { label: "Score", desc: "0–100 regulasi diri" },
-            { label: "Zone", desc: "1 dari 10 peta kondisi" },
-            { label: "State & Mode", desc: "Pola kondisi saat ini" },
-            { label: "Flow", desc: "Arah adaptasi optimal" },
+            { label: "Score", desc: locale === "id" ? "0–100 regulasi diri" : "0–100 self regulation" },
+            { label: "Zone", desc: locale === "id" ? "1 dari 10 peta kondisi" : "1 of 10 state maps" },
+            { label: "State & Mode", desc: locale === "id" ? "Pola kondisi saat ini" : "Current state pattern" },
+            { label: "Flow", desc: locale === "id" ? "Arah adaptasi optimal" : "Optimal adaptation flow" },
           ].map((item) => (
             <div key={item.label} className="glass-card p-4 text-left">
               <p className="text-xs font-bold text-cyan-400 mb-1">{item.label}</p>
@@ -118,17 +127,17 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="relative z-10 px-6 py-8 max-w-3xl mx-auto w-full text-center">
         <p className="text-[11px] text-white/20 leading-relaxed">
-          E-Self Tool adalah alat refleksi diri berbasis self-report yang dirancang untuk membantu pengguna
-          memahami kondisi internal dan pola adaptasi dirinya secara lebih jernih dan terstruktur.
-          Hasil yang ditampilkan bersifat informatif dan reflektif, <strong className="text-white/30">bukan diagnosis medis, psikologis, atau psikiatris</strong>,
-          serta tidak menggantikan konsultasi dengan tenaga profesional.
+          {locale === "id" 
+            ? <>E-Self Tool adalah alat refleksi diri berbasis self-report yang dirancang untuk membantu pengguna memahami kondisi internal dan pola adaptasi dirinya secara lebih jernih dan terstruktur. Hasil yang ditampilkan bersifat informatif dan reflektif, <strong className="text-white/30">bukan diagnosis medis, psikologis, atau psikiatris</strong>, serta tidak menggantikan konsultasi dengan tenaga profesional.</>
+            : <>The E-Self Tool is a self-report-based reflection tool designed to help users understand their internal condition and adaptation patterns more clearly and structurally. The results displayed are informative and reflective, <strong className="text-white/30">not a medical, psychological, or psychiatric diagnosis</strong>, and do not replace professional consultation.</>
+          }
         </p>
         <p className="mt-3 text-[10px] text-white/15">
           This tool is for self-reflection and does not provide medical or psychological diagnosis.
         </p>
         <div className="mt-8">
           <Link href="/admin" className="text-[10px] text-white/10 hover:text-white/40 transition-colors duration-300">
-            Admin Dashboard
+            {t.adminBtn}
           </Link>
         </div>
       </footer>

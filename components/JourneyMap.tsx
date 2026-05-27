@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { ZoneData, ZONE_TABLE } from "@/lib/zones";
+import { useLocale, uiStrings } from "@/lib/i18n";
 
 type JourneyMapProps = {
   currentZone: ZoneData;
@@ -10,6 +11,8 @@ type JourneyMapProps = {
 export default function JourneyMap({ currentZone }: JourneyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const activeNodeRef = useRef<HTMLDivElement>(null);
+  const locale = useLocale();
+  const t = uiStrings[locale];
 
   useEffect(() => {
     // Scroll to the active node automatically so it's centered on mobile
@@ -29,7 +32,7 @@ export default function JourneyMap({ currentZone }: JourneyMapProps) {
   return (
     <div className="animate-fade-in-up animate-delay-200 glass-card p-6 relative overflow-hidden">
       <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/30 mb-5">
-        Peta Perjalanan (Flow)
+        {t.journeyMap}
       </p>
 
       {/* 

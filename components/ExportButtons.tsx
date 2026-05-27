@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from "react";
 import * as htmlToImage from "html-to-image";
 import jsPDF from "jspdf";
+import { useLocale } from "@/lib/i18n";
 
 export default function ExportButtons() {
   const [isExporting, setIsExporting] = useState(false);
   const [preview, setPreview] = useState<{ url: string, type: 'png' | 'pdf' } | null>(null);
   const [canShare, setCanShare] = useState(false);
+  const locale = useLocale();
 
   useEffect(() => {
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
@@ -117,15 +119,15 @@ export default function ExportButtons() {
       }
 
       await navigator.share({
-        title: 'Hasil E-Self Tool',
-        text: 'Ini hasil penilaian regulasi emosiku!',
+        title: locale === "id" ? 'Hasil E-Self Tool' : 'E-Self Tool Result',
+        text: locale === "id" ? 'Ini hasil penilaian regulasi emosiku!' : 'This is my emotional regulation assessment result!',
         files: [fileToShare]
       });
       setPreview(null);
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         console.error("Gagal share:", err);
-        alert("Gagal membagikan file.");
+        alert(locale === "id" ? "Gagal membagikan file." : "Failed to share file.");
       }
     }
   };
@@ -141,7 +143,7 @@ export default function ExportButtons() {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
           </svg>
-          {isExporting ? "Memproses..." : "Download / Share (PNG)"}
+          {isExporting ? (locale === "id" ? "Memproses..." : "Processing...") : "Download / Share (PNG)"}
         </button>
         <button
           onClick={generatePDFPreview}
@@ -151,7 +153,7 @@ export default function ExportButtons() {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          {isExporting ? "Memproses..." : "Download Lengkap (PDF)"}
+          {isExporting ? (locale === "id" ? "Memproses..." : "Processing...") : (locale === "id" ? "Download Lengkap (PDF)" : "Download Full (PDF)")}
         </button>
       </div>
 
@@ -159,7 +161,10 @@ export default function ExportButtons() {
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-[#080B12] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
             <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-              <h3 className="text-sm font-bold text-white/90">Preview {preview.type === 'png' ? 'Ringkasan' : 'Lengkap'}</h3>
+              <h3 className="text-sm font-bold text-white/90">
+                {locale === "id" ? "Preview " : "Preview "}
+                {preview.type === 'png' ? (locale === "id" ? 'Ringkasan' : 'Summary') : (locale === "id" ? 'Lengkap' : 'Full')}
+              </h3>
               <button onClick={() => setPreview(null)} className="text-white/40 hover:text-white/90 transition-colors">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -191,7 +196,7 @@ export default function ExportButtons() {
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                   </svg>
-                  Bagikan
+                  {locale === "id" ? "Bagikan" : "Share"}
                 </button>
               )}
             </div>

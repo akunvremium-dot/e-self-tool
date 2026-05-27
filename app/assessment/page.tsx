@@ -2,22 +2,27 @@
 
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { SECTIONS, Answers } from "@/lib/questions";
+import { getSections, Answers } from "@/lib/questions";
+import { useLocale, uiStrings } from "@/lib/i18n";
 import { computeScore } from "@/lib/scoring";
 import { saveAssessment } from "@/lib/supabase";
 import ProgressBar from "@/components/ProgressBar";
 import QuestionCard from "@/components/QuestionCard";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Link from "next/link";
 
 const QUESTIONS_PER_SECTION = 4;
-const TOTAL_SECTIONS = SECTIONS.length; // 5
-
 export default function AssessmentPage() {
   const router = useRouter();
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [answers, setAnswers] = useState<Partial<Answers>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const locale = useLocale();
+  const t = uiStrings[locale];
+  const SECTIONS = getSections(locale);
+  const TOTAL_SECTIONS = SECTIONS.length;
 
   // Enforce profile entrance gate
   React.useEffect(() => {
@@ -62,7 +67,7 @@ export default function AssessmentPage() {
     );
 
     if (!allAnswered) {
-      setSubmitError("Harap jawab semua pertanyaan sebelum submit.");
+      setSubmitError(t.warningFillAll);
       return;
     }
 
@@ -71,7 +76,7 @@ export default function AssessmentPage() {
 
     try {
       const fullAnswers = answers as Answers;
-      const result = computeScore(fullAnswers);
+      const result = computeScore(fullAnswers, locale);
 
       let name = "Anonim";
       let city = "-";
@@ -124,7 +129,7 @@ export default function AssessmentPage() {
       }
     } catch (err) {
       console.error(err);
-      setSubmitError("Terjadi kesalahan. Silakan coba lagi.");
+      setSubmitError(locale === "id" ? "Terjadi kesalahan. Silakan coba lagi." : "An error occurred. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -142,9 +147,12 @@ export default function AssessmentPage() {
           </div>
           <span className="font-bold text-white/70 tracking-tight text-sm">E-Self Tool</span>
         </Link>
-        <span className="text-xs text-white/30">
-          {totalAnswered} / 20 dijawab
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="text-xs text-white/30">
+            {totalAnswered} / 20 {locale === "id" ? "dijawab" : "answered"}
+          </span>
+          <LanguageSwitcher />
+        </div>
       </header>
 
       {/* Main content */}
@@ -166,7 +174,7 @@ export default function AssessmentPage() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-[10px] font-mono text-white/20 tracking-widest uppercase">
-              Bagian {currentSectionIndex + 1} dari {TOTAL_SECTIONS}
+              {t.part} {currentSectionIndex + 1} {t.of} {TOTAL_SECTIONS}
             </span>
           </div>
           <h2 className="text-2xl font-bold text-white">{currentSection.title}</h2>
@@ -183,6 +191,7 @@ export default function AssessmentPage() {
                 hint={question.hint}
                 value={answers[question.key] ?? null}
                 onChange={(value) => handleAnswer(question.key, value)}
+                locale={locale}
               />
             </div>
           ))}
@@ -213,7 +222,7 @@ export default function AssessmentPage() {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
             </svg>
-            Kembali
+            {locale === "id" ? "Kembali" : "Back"}
           </button>
 
           {/* Next / Submit */}
@@ -238,11 +247,11 @@ export default function AssessmentPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Memproses...
+                  {t.loading}
                 </>
               ) : (
                 <>
-                  Lihat Hasil
+                  {t.btnSubmit}
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>
@@ -264,7 +273,7 @@ export default function AssessmentPage() {
                 transition-all duration-300 hover:scale-[1.02] active:scale-100
               "
             >
-              Lanjutkan
+              {t.btnNext}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
               </svg>
@@ -275,7 +284,7 @@ export default function AssessmentPage() {
         {/* Section hint */}
         {!sectionAnswered && (
           <p className="mt-3 text-center text-xs text-white/25">
-            Jawab semua pertanyaan di bagian ini untuk melanjutkan
+            {locale === "id" ? "Jawab semua pertanyaan di bagian ini untuk melanjutkan" : "Answer all questions in this section to continue"}
           </p>
         )}
       </div>
@@ -283,7 +292,7 @@ export default function AssessmentPage() {
       {/* Footer disclaimer */}
       <footer className="relative z-10 px-6 py-4 text-center">
         <p className="text-[10px] text-white/15">
-          Tidak ada jawaban benar atau salah · Hasil hanya muncul di halaman Result
+          {locale === "id" ? "Tidak ada jawaban benar atau salah · Hasil hanya muncul di halaman Result" : "No right or wrong answers · Result will only show on the Result page"}
         </p>
       </footer>
     </main>

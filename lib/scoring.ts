@@ -4,6 +4,7 @@
 
 import { Answers } from "./questions";
 import { getZoneData, ZoneData } from "./zones";
+import { Locale } from "./i18n";
 
 export type ScoringResult = {
   // Raw domain averages (0–4)
@@ -45,7 +46,7 @@ function clamp(value: number, min: number, max: number): number {
  * Deterministic scoring engine.
  * Implements the exact formula from the locked spec (Section 6).
  */
-export function computeScore(answers: Answers): ScoringResult {
+export function computeScore(answers: Answers, locale: Locale = "id"): ScoringResult {
   const { q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20 } = answers;
 
   // 6.1 Domain averages
@@ -74,8 +75,8 @@ export function computeScore(answers: Answers): ScoringResult {
   // 6.6 Final score (clamped 0–100)
   const finalScore = clamp(Math.round(baseScore + adjustmentFactor), 0, 100);
 
-  // Zone lookup (strict, no fuzzy)
-  const zone = getZoneData(finalScore);
+  // --- 4. Penentuan Zona ---
+  const zone = getZoneData(finalScore, locale);
 
   return {
     stabilityAvg,
