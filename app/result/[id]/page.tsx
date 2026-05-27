@@ -10,6 +10,7 @@ import { Answers } from "@/lib/questions";
 import ScoreGauge from "@/components/ScoreGauge";
 import ZoneBadge from "@/components/ZoneBadge";
 import DimensionChip from "@/components/DimensionChip";
+import JourneyMap from "@/components/JourneyMap";
 import RadarChart from "@/components/RadarChart";
 import ExportButtons from "@/components/ExportButtons";
 
@@ -207,6 +208,10 @@ export default function ResultPage() {
           <DimensionChip label="Mode" value={zone.mode} hexColor={zone.hexColor} />
           <DimensionChip label="Flow" value={zone.flow} hexColor={zone.hexColor} />
         </div>
+
+        {/* Journey Map Visual */}
+        <JourneyMap currentZone={zone} />
+        
         </div>
 
         {/* Interpretation */}
