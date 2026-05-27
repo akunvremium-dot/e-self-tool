@@ -177,7 +177,7 @@ export const SECTIONS: Section[] = [
         text: "Saya benar-benar memahami alasan di balik setiap reaksi emosi dan keputusan yang saya ambil.",
         hint: "Ini bukan soal apakah kamu punya alasan, tapi apakah kamu sungguh-sungguh memahami akar dari reaksi dan pilihanmu, bukan sekadar menebak-nebak.",
       },
-    ];
+    ],
   },
 ];
 
