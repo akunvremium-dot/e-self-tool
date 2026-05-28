@@ -38,6 +38,9 @@ export const uiStrings = {
     btnSubmit: "Lihat Hasil Analisis",
     part: "Bagian",
     of: "dari",
+    coherenceTitle: "Catatan Refleksi",
+    coherenceBody: "Kami mendeteksi pola yang menarik dalam jawabanmu: tingkat kesadaran diri yang kamu laporkan cukup tinggi, namun indikator reaktivitas emosionalmu menunjukkan tantangan yang signifikan. Ini bisa berarti kamu memiliki kapasitas refleksi yang baik saat tenang, namun kemampuan itu belum terinternalisasi sepenuhnya dalam responsmu saat berada di bawah tekanan. Ini bukan kelemahan. Ini adalah area pertumbuhan yang sangat kuat dan sangat bisa dilatih. Skor akhirmu telah disesuaikan untuk mencerminkan jarak antara kesadaran dan pengendalian aktual ini.",
+    coherenceLabel: "Koherensi Internal",
   },
   en: {
     backToHome: "Back to Home",
@@ -76,5 +79,8 @@ export const uiStrings = {
     btnSubmit: "View Analysis Result",
     part: "Part",
     of: "of",
+    coherenceTitle: "Reflection Note",
+    coherenceBody: "We detected an interesting pattern in your answers: the level of self-awareness you reported is quite high, yet your emotional reactivity indicators show significant challenges. This could mean you have good reflective capacity when calm, but that capacity hasn't fully internalized into your responses under pressure. This isn't a weakness. It's a powerful growth area that can absolutely be trained. Your final score has been adjusted to reflect this gap between awareness and actual emotional control.",
+    coherenceLabel: "Internal Coherence",
   }
 };
