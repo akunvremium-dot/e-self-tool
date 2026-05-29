@@ -1,5 +1,6 @@
 // lib/scoring.ts
-// SCORING FORMULA v2 — Moderated Adjustment Factor
+// SCORING FORMULA v2.1 — Soft Moderated Adjustment Factor
+// LOCKED — Do not modify without full simulation audit
 // Deterministic, pure function — same input always produces same output
 
 import { Answers } from "./questions";
@@ -48,9 +49,9 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * Deterministic scoring engine (v2).
- * Moderated Adjustment: awareness claims are discounted proportionally
- * by reactivity performance (emotional control evidence).
+ * Deterministic scoring engine (v2.1).
+ * Soft Moderated Adjustment: awareness claims are discounted proportionally
+ * by reactivity performance, with a 50% floor to prevent over-punishment.
  */
 export function computeScore(answers: Answers, locale: Locale = "id"): ScoringResult {
   const { q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20 } = answers;
@@ -74,12 +75,12 @@ export function computeScore(answers: Answers, locale: Locale = "id"): ScoringRe
   // 4. Base score (equal weight, unchanged)
   const baseScore = (stabilityScore + reactivityFinal + clarityScore + adaptivityScore) / 4;
 
-  // 5. Moderated Adjustment Factor (v2)
-  // Klaim Awareness dimoderasi oleh bukti perilaku (Reactivity control).
-  // Jika ReactivityFinal tinggi (emosi terkendali), klaim dipercaya sepenuhnya.
-  // Jika ReactivityFinal rendah (emosi meledak), klaim didiskon.
+  // 5. Soft Moderated Adjustment Factor (v2.1)
+  // coherenceRatio = raw value (0-1) for DISPLAY, jujur untuk UI
+  // moderatedCoherence = soft curve (0.5-1.0) for FORMULA, prevents over-punishment
   const coherenceRatio = reactivityFinal / 100;
-  const effectiveAwareness = adjustmentAvg * coherenceRatio;
+  const moderatedCoherence = 0.5 + 0.5 * coherenceRatio;
+  const effectiveAwareness = adjustmentAvg * moderatedCoherence;
   const rawAdjustment = (effectiveAwareness - 2) * 5;
   const adjustmentFactor = clamp(rawAdjustment, -10, 10);
 
